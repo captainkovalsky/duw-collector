@@ -81,6 +81,43 @@ std::string HttpClient::Get(const std::string& url) {
   return response;
 }
 
+std::string HttpClient::Put(const std::string& url, const std::string& data) {
+  std::string response;
+  
+  if (curl_ == nullptr) {
+    spdlog::error("CURL not initialized");
+    return response;
+  }
+  
+  CURL* curl = static_cast<CURL*>(curl_);
+
+  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, data.length());
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
+  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+
+  CURLcode res = curl_easy_perform(curl);
+  if (res != CURLE_OK) {
+    spdlog::error("CURL PUT request failed: {}", curl_easy_strerror(res));
+    return response;
+  }
+
+  long responseCode;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
+  if (responseCode != HTTP_OK) {
+    spdlog::error("HTTP PUT error: {}", responseCode);
+    return response;
+  }
+
+  return response;
+}
+
 size_t HttpClient::WriteCallback(void* contents,
                                 size_t size,
                                 size_t nmemb,

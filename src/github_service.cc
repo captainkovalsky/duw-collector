@@ -25,6 +25,7 @@ class GitHubServiceImpl : public GitHubService {
   std::string BuildRawUrl(const std::string& repo_path);
   bool WriteFile(const std::string& path, const std::string& content);
   std::string ReadFile(const std::string& path);
+  std::string EncodeBase64(const std::string& data);
 };
 
 GitHubServiceImpl::GitHubServiceImpl(std::unique_ptr<HttpClient> http_client)
@@ -52,10 +53,18 @@ bool GitHubServiceImpl::PushDatabase(const std::string& repo_path,
     return false;
   }
   
-  spdlog::info("Database content size: {} bytes", content.size());
-  spdlog::info("Would push to: {}", repo_path);
-  spdlog::info("Commit message: {}", commit_message);
+  std::string api_url = "https://api.github.com/repos/" + repo_path;
+  std::string json_payload = R"({"message":")" + commit_message + R"(","content":")" + 
+                            EncodeBase64(content) + R"("})";
   
+  std::string response = http_client_->Put(api_url, json_payload);
+  
+  if (response.empty()) {
+    spdlog::error("Failed to push database to GitHub");
+    return false;
+  }
+  
+  spdlog::info("Successfully pushed database to GitHub");
   return true;
 }
 
@@ -93,6 +102,31 @@ std::string GitHubServiceImpl::ReadFile(const std::string& path) {
   file.close();
   
   return buffer.str();
+}
+
+std::string GitHubServiceImpl::EncodeBase64(const std::string& data) {
+  const char* chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  std::string result;
+  int val = 0, valb = -6;
+  
+  for (unsigned char c : data) {
+    val = (val << 8) + c;
+    valb += 8;
+    while (valb >= 0) {
+      result.push_back(chars[(val >> valb) & 0x3F]);
+      valb -= 6;
+    }
+  }
+  
+  if (valb > -6) {
+    result.push_back(chars[((val << 8) >> (valb + 8)) & 0x3F]);
+  }
+  
+  while (result.size() % 4) {
+    result.push_back('=');
+  }
+  
+  return result;
 }
 
 std::unique_ptr<GitHubService> CreateGitHubService(std::unique_ptr<HttpClient> http_client) {
