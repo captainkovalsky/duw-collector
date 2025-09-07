@@ -10,3 +10,5 @@ split logic into classes if needed.
 DO NOT write any comments, code should be simple to understand without comments.
 
 Check GitHub comments under PRs for additional requirements or feedback.
+
+DO NOT add unnecessary GitHub issue links that open in Cursor/web.
