@@ -6,4 +6,6 @@
  - Read task from LOOP.md or GitHub issues
  - Execute task
  - Verify as in VERIFY.md
- - after each task commit 
+ - after each task commit - one line short message, no long description at all
+ - wait 30 sec
+ - follow AGENT_WORKFLOW.md
