@@ -1,0 +1,38 @@
+name: Issue Monitor
+
+on:
+  schedule:
+    # Run every day at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Check for open issues
+        id: check-issues
+        run: |
+          # Get count of open issues
+          ISSUE_COUNT=$(gh issue list --state open --json number | jq length)
+          echo "issue_count=$ISSUE_COUNT" >> $GITHUB_OUTPUT
+          
+          if [ "$ISSUE_COUNT" -gt 0 ]; then
+            echo "Found $ISSUE_COUNT open issues"
+            gh issue list --state open --json number,title,labels,updatedAt --jq '.[] | "  #\(.number): \(.title)"'
+          else
+            echo "No open issues found"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create summary
+        run: |
+          if [ "${{ steps.check-issues.outputs.issue_count }}" -gt 0 ]; then
+            echo "⚠️ There are ${{ steps.check-issues.outputs.issue_count }} open issues that need attention!"
+          else
+            echo "✅ No open issues - repository is clean!"
+          fi
