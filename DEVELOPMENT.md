@@ -324,8 +324,7 @@ duw-collector/
 │   ├── CODE_CONVENTIONS.md  # Coding standards
 │   ├── AGENT_WORKFLOW.md    # Agent workflow
 │   └── VERIFY.md           # Verification requirements
-├── DEVELOPMENT.md       # This file
-└── tasks.todo          # Project tasks
+└── DEVELOPMENT.md       # This file
 ```
 
 ## Performance Notes
