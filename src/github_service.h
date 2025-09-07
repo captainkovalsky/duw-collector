@@ -17,6 +17,7 @@ class GitHubService {
   virtual bool PushDatabase(const std::string& repo_path,
                            const std::string& local_path,
                            const std::string& commit_message) = 0;
+  virtual bool CloseIssue(const std::string& repo_path, int issue_number) = 0;
 };
 
 std::unique_ptr<GitHubService> CreateGitHubService(std::unique_ptr<HttpClient> http_client);

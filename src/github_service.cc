@@ -19,6 +19,7 @@ class GitHubServiceImpl : public GitHubService {
   bool PushDatabase(const std::string& repo_path,
                    const std::string& local_path,
                    const std::string& commit_message) override;
+  bool CloseIssue(const std::string& repo_path, int issue_number) override;
 
  private:
   std::unique_ptr<HttpClient> http_client_;
@@ -127,6 +128,22 @@ std::string GitHubServiceImpl::EncodeBase64(const std::string& data) {
   }
   
   return result;
+}
+
+bool GitHubServiceImpl::CloseIssue(const std::string& repo_path, int issue_number) {
+  std::string api_url = "https://api.github.com/repos/" + repo_path + "/issues/" + 
+                        std::to_string(issue_number);
+  std::string json_payload = R"({"state":"closed"})";
+  
+  std::string response = http_client_->Patch(api_url, json_payload);
+  
+  if (response.empty()) {
+    spdlog::error("Failed to close GitHub issue #{}", issue_number);
+    return false;
+  }
+  
+  spdlog::info("Successfully closed GitHub issue #{}", issue_number);
+  return true;
 }
 
 std::unique_ptr<GitHubService> CreateGitHubService(std::unique_ptr<HttpClient> http_client) {

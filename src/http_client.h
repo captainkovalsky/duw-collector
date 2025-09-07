@@ -18,6 +18,7 @@ class HttpClient {
 
   std::string Get(const std::string& url);
   std::string Put(const std::string& url, const std::string& data);
+  std::string Patch(const std::string& url, const std::string& data);
 
  private:
   void* curl_ = nullptr;
