@@ -4,11 +4,12 @@
 #include <thread>
 
 #include <spdlog/spdlog.h>
-#include "data_storage.h"
+
 #include "config_service.h"
-#include "http_client.h"
 #include "data_parser.h"
+#include "data_storage.h"
 #include "github_service.h"
+#include "http_client.h"
 
 namespace duw {
 

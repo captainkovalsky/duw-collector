@@ -1,6 +1,7 @@
 #include "http_client.h"
 
 #include <curl/curl.h>
+
 #include <spdlog/spdlog.h>
 
 namespace duw {

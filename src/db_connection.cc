@@ -1,6 +1,7 @@
 #include "db_connection.h"
 
 #include <memory>
+
 #include <spdlog/spdlog.h>
 #include <sqlite3.h>
 

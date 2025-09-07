@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include <nlohmann/json.hpp>
+
 #include "data_storage.h"
 
 namespace duw {

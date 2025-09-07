@@ -1,9 +1,11 @@
 #include "database_service.h"
 
-#include <spdlog/spdlog.h>
-#include <sqlite3.h>
 #include <cstdint>
 #include <cstdlib>
+
+#include <spdlog/spdlog.h>
+#include <sqlite3.h>
+
 #include "db_connection.h"
 
 namespace duw {

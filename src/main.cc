@@ -2,12 +2,13 @@
 #include <memory>
 
 #include <spdlog/spdlog.h>
+
 #include "collector.h"
-#include "http_client.h"
 #include "database_service.h"
-#include "json_parser.h"
 #include "env_service.h"
 #include "github_service.h"
+#include "http_client.h"
+#include "json_parser.h"
 
 int main() {
   auto http_client = std::make_unique<duw::HttpClient>();

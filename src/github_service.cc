@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include <spdlog/spdlog.h>
+
 #include "http_client.h"
 
 namespace duw {
