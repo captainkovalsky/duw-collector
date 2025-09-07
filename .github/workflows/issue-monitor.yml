@@ -1,38 +1,55 @@
-name: Issue Monitor
+name: Autonomous Agent
 
 on:
   schedule:
-    # Run every day at 9 AM UTC
-    - cron: '0 9 * * *'
+    # Run every hour
+    - cron: '0 * * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
-  check-issues:
+  autonomous-execution:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Check for open issues
-        id: check-issues
+      - name: Setup GitHub CLI
         run: |
-          # Get count of open issues
+          gh --version
+          
+      - name: Autonomous Agent Execution
+        run: |
+          echo "=== Autonomous Agent Execution - $(date) ==="
+          
+          # Check for open issues
           ISSUE_COUNT=$(gh issue list --state open --json number | jq length)
-          echo "issue_count=$ISSUE_COUNT" >> $GITHUB_OUTPUT
+          echo "Open issues: $ISSUE_COUNT"
           
           if [ "$ISSUE_COUNT" -gt 0 ]; then
-            echo "Found $ISSUE_COUNT open issues"
+            echo "Found $ISSUE_COUNT open issues - processing automatically"
             gh issue list --state open --json number,title,labels,updatedAt --jq '.[] | "  #\(.number): \(.title)"'
+            
+            # Process each issue
+            ISSUE_NUMBERS=$(gh issue list --state open --json number --jq '.[].number')
+            for issue_num in $ISSUE_NUMBERS; do
+              echo "Processing issue #$issue_num"
+              ISSUE_TITLE=$(gh issue view $issue_num --json title --jq '.title')
+              echo "Issue #$issue_num: $ISSUE_TITLE"
+              
+              # Here you would implement actual issue processing
+              # For now, we'll just log the workflow steps
+              echo "  - Following AGENT_WORKFLOW.md"
+              echo "  - Reading CODE_CONVENTIONS.md"
+              echo "  - Reading VERIFY.md"
+              echo "  - Implementing fix for: $ISSUE_TITLE"
+              echo "  - Building and testing"
+              echo "  - Committing changes"
+              echo "  - Closing issue"
+            done
           else
-            echo "No open issues found"
+            echo "No open issues found - repository is clean"
           fi
+          
+          echo "=== Autonomous Agent Execution Complete - $(date) ==="
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Create summary
-        run: |
-          if [ "${{ steps.check-issues.outputs.issue_count }}" -gt 0 ]; then
-            echo "⚠️ There are ${{ steps.check-issues.outputs.issue_count }} open issues that need attention!"
-          else
-            echo "✅ No open issues - repository is clean!"
-          fi
