@@ -31,6 +31,8 @@ int main() {
     return result;
   }
 
-  collector->Stop();
+  if (polling_mode) {
+    collector->Stop();
+  }
   return 0;
 }
