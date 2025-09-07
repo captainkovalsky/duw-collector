@@ -8,3 +8,5 @@ Wrice concise, simple, short decoupled code.
 split logic into classes if needed.
 
 DO NOT write any comments, code should be simple to understand without comments.
+
+Check GitHub comments under PRs for additional requirements or feedback.
