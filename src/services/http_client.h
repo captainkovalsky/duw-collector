@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include <curl/curl.h>
+#include <httplib.h>
 
 namespace duw {
 
@@ -23,19 +23,7 @@ class HttpClient {
   std::string Put(const std::string& url, const std::string& data);
 
  private:
-  struct CurlDeleter {
-    void operator()(void* curl) const {
-      if (curl) {
-        curl_easy_cleanup(static_cast<CURL*>(curl));
-      }
-    }
-  };
-  
-  std::unique_ptr<void, CurlDeleter> curl_;
-  static size_t WriteCallback(void* contents,
-                              size_t size,
-                              size_t nmemb,
-                              std::string* userp);
+  // No need to store client since we create it per request
 };
 
 }  // namespace duw

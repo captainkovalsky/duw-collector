@@ -16,11 +16,7 @@ if ! command -v make &> /dev/null; then
     exit 1
 fi
 
-if ! command -v curl &> /dev/null; then
-    echo "Error: curl development libraries are not installed. Please install curl first."
-    echo "You can install it with: brew install curl"
-    exit 1
-fi
+# Note: cpp-httplib is header-only and will be fetched automatically by CMake
 
 if ! command -v sqlite3 &> /dev/null; then
     echo "Error: sqlite3 development libraries are not installed. Please install sqlite3 first."

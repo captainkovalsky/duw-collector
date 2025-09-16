@@ -24,15 +24,24 @@ endif()
 # Find dependencies with fallback strategies
 find_package(PkgConfig QUIET)
 
-# Find CURL
-if(PKG_CONFIG_FOUND)
-    pkg_check_modules(CURL libcurl)
-endif()
+# Find OpenSSL for HTTPS support
+find_package(OpenSSL REQUIRED)
 
-if(NOT CURL_FOUND)
-    find_package(CURL REQUIRED)
-    set(CURL_LIBRARIES ${CURL_LIBRARIES})
-    set(CURL_INCLUDE_DIRS ${CURL_INCLUDE_DIRS})
+# Find cpp-httplib with fallback to FetchContent
+find_package(httplib QUIET)
+
+if(NOT httplib_FOUND)
+    include(FetchContent)
+    message(STATUS "cpp-httplib not found locally, fetching from GitHub...")
+    
+    FetchContent_Declare(
+        httplib
+        GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+        GIT_TAG v0.15.3
+        GIT_SHALLOW TRUE
+    )
+    
+    FetchContent_MakeAvailable(httplib)
 endif()
 
 # Find SQLite3
@@ -100,16 +109,17 @@ set_target_properties(duw-collector PROPERTIES
 # Link libraries
 target_link_libraries(duw-collector 
     PRIVATE 
-    ${CURL_LIBRARIES} 
     ${SQLITE3_LIBRARIES} 
     nlohmann_json::nlohmann_json
     spdlog::spdlog
+    httplib::httplib
+    OpenSSL::SSL
+    OpenSSL::Crypto
 )
 
 # Include directories
 target_include_directories(duw-collector 
     PRIVATE 
-    ${CURL_INCLUDE_DIRS} 
     ${SQLITE3_INCLUDE_DIRS}
     src
 )
@@ -117,8 +127,13 @@ target_include_directories(duw-collector
 # Compile definitions and options
 target_compile_options(duw-collector 
     PRIVATE 
-    ${CURL_CFLAGS_OTHER} 
     ${SQLITE3_CFLAGS_OTHER}
+)
+
+# Enable SSL support for cpp-httplib
+target_compile_definitions(duw-collector 
+    PRIVATE 
+    CPPHTTPLIB_OPENSSL_SUPPORT
 )
 
 # Enable compile_commands.json for clangd
@@ -129,8 +144,9 @@ message(STATUS "=== DUW Collector Build Configuration ===")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-message(STATUS "CURL found: ${CURL_FOUND} (${CURL_VERSION})")
 message(STATUS "SQLite3 found: ${SQLITE3_FOUND} (${SQLITE3_VERSION})")
 message(STATUS "nlohmann/json found: ${nlohmann_json_FOUND}")
 message(STATUS "spdlog found: ${spdlog_FOUND}")
+message(STATUS "cpp-httplib found: ${httplib_FOUND}")
+message(STATUS "OpenSSL found: ${OPENSSL_FOUND} (${OPENSSL_VERSION})")
 message(STATUS "==========================================")
