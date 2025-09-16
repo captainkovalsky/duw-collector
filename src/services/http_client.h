@@ -1,7 +1,6 @@
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
 
-#include <memory>
 #include <string>
 
 #include <httplib.h>

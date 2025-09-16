@@ -78,15 +78,6 @@ std::string HttpClient::Put(const std::string& url, const std::string& data) {
   std::string host = url.substr(host_start, path_start - host_start);
   std::string path = (path_start == std::string::npos) ? "/" : url.substr(path_start);
   
-  // Handle query parameters
-  size_t query_start = path.find('?');
-  std::string path_part = path;
-  std::string query_part = "";
-  if (query_start != std::string::npos) {
-    path_part = path.substr(0, query_start);
-    query_part = path.substr(query_start + 1);
-  }
-  
   // Create a new client for this specific host
   httplib::Client cli(protocol == "https" ? "https://" + host : host);
   cli.set_read_timeout(30);
