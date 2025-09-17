@@ -9,56 +9,9 @@ HttpClient::HttpClient() {
 }
 
 std::string HttpClient::Get(const std::string& url) {
-  std::string response;
-  
-  // Parse URL to extract host and path
-  size_t protocol_end = url.find("://");
-  if (protocol_end == std::string::npos) {
-    spdlog::error("Invalid URL format: {}", url);
-    return response;
-  }
-  
-  std::string protocol = url.substr(0, protocol_end);
-  size_t host_start = protocol_end + 3;
-  size_t path_start = url.find('/', host_start);
-  
-  std::string host = url.substr(host_start, path_start - host_start);
-  std::string path = (path_start == std::string::npos) ? "/" : url.substr(path_start);
-  
-  // Handle query parameters
-  size_t query_start = path.find('?');
-  std::string path_part = path;
-  std::string query_part = "";
-  if (query_start != std::string::npos) {
-    path_part = path.substr(0, query_start);
-    query_part = path.substr(query_start + 1);
-  }
-  
-  // Create a new client for this specific host
-  httplib::Client cli(protocol == "https" ? "https://" + host : host);
-  cli.set_read_timeout(30);
-  cli.set_write_timeout(30);
-  cli.set_connection_timeout(10);
-  cli.enable_server_certificate_verification(true);
-  cli.set_follow_location(true);
-  
-  // Set User-Agent to avoid potential blocking
-  cli.set_default_headers({
-    {"User-Agent", "duw-collector/1.0"}
-  });
-  
-  auto res = cli.Get(path_part, httplib::Params{{"status", ""}}, httplib::Headers{});
-  if (!res) {
-    spdlog::error("HTTP GET request failed for URL: {} - Error: {}", url, static_cast<int>(res.error()));
-    return response;
-  }
-  
-  if (res->status != 200) {
-    spdlog::error("HTTP error: {} for URL: {}", res->status, url);
-    return response;
-  }
-  
-  return res->body;
+  httplib::Client cli(url);
+  auto res = cli.Get("/");
+  return res ? res->body : "";
 }
 
 std::string HttpClient::Put(const std::string& url, const std::string& data) {
